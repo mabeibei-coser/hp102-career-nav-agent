@@ -28,11 +28,13 @@ export async function chatWithTools(input: {
   allowTools: boolean;
   conversationId: string;
   step: number;
+  purpose?: "chat" | "eval";
   adapter?: ChatAdapter;
   timeoutMs?: number;
 }) {
   const adapter = input.adapter ?? defaultAdapter();
   const timeoutMs = input.timeoutMs ?? 30_000;
+  const purpose = input.purpose ?? "chat";
 
   return chatLimiter.run(async () => {
     const startedAt = Date.now();
@@ -52,7 +54,7 @@ export async function chatWithTools(input: {
         provider: adapter.provider,
         model: adapter.model,
         kind: "chat",
-        purpose: "chat",
+        purpose,
         step: input.step,
         ok: true,
         finishReason: result.finishReason,
@@ -68,7 +70,7 @@ export async function chatWithTools(input: {
         provider: adapter.provider,
         model: adapter.model,
         kind: "chat",
-        purpose: "chat",
+        purpose,
         step: input.step,
         ok: false,
         errorCategory:

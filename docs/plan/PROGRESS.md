@@ -32,7 +32,7 @@
 | T1.13 | 模型层：Gemini 对话适配器（函数调用与思考签名） | T1.12 | 完成 | llm-gemini-chat.test.ts 3 passed |
 | T1.14 | 模型层入口：generateJson、chatWithTools、并发限制、调用日志 | T1.13 | 完成 | llm-orchestration.test.ts 5 passed |
 | T1.15 | 模型层：测试模式 mock | T1.14 | 完成 | llm-mock.test.ts 3 passed |
-| T1.16 | 凭证与 Gemini 冒烟【真实模型】【需用户确认】 | T1.15 | 待办 | 等待用户写入 BANANAROUTER_API_KEY 到 .env.local |
+| T1.16 | 凭证与 Gemini 冒烟【真实模型】【需用户确认】 | T1.15 | 完成 | (a)200/2927ms 文字非空；(b1)200/1558ms functionCall+thoughtSignature；(c)200/1376ms 有文字；(d)预期400实际200（仅记录）；(e)200/4039ms JSON可解析；共5次调用；.env.local 已 gitignore |
 | T1.17 | 访谈出题 | T1.16 | 完成 | interview.test.ts 3 passed（mock provider） |
 | T1.18 | 简历解析与预填 | T1.17 | 完成 | resume.test.ts 3 passed |
 | T1.19 | 卡片构造 | T1.18 | 完成 | cards.test.ts 3 passed |
@@ -59,7 +59,7 @@
 | T1.40 | 重新开始卡与报告失败重试 | T1.39 | 完成 | ui-restart.spec.ts 2 passed；report-fail project 1 passed |
 | T1.41 | 报告页（文字版） | T1.40 | 完成 | ui-report-page.spec.ts 3 passed |
 | T1.42 | 全流程 E2E（三端） | T1.41 | 完成 | button-flow/typed-flow/refresh 3 passed；npm run test:e2e 94 passed（4 projects） |
-| T1.43 | 打字作答评测【真实模型】 | T1.42 | 待办 | 依赖 T1.16 真实 Key |
+| T1.43 | 打字作答评测【真实模型】 | T1.42 | 完成 | mapped 20/20=100%；none 5/5=100%；25 次真实调用 |
 | T1.44 | 用户在场全流程走查【真实模型】【需用户确认】 | T1.43 | 待办 | 依赖 T1.16 |
 
 ## 第 2 期：体验对齐 A300
@@ -95,3 +95,5 @@
 - 2026-09-25 计划修订：对话循环改为非流式手写实现并加入四条借鉴设计；03 拆为最小执行单元。
 - 2026-09-25 模型改为 BananaRouter 中转的 Gemini 原生接口（`gemini-3.1-flash-lite`，与工作区已上线项目一致）；对话循环改为 Gemini 函数调用并遵守思考签名规则；循环只依赖中立适配器接口；原方案改为 02 §18 备选（仅用户决定后切换）；模型层拆为 6 个任务，03 共 63 个任务。
 - 2026-09-25 T0.1–T1.42 批量实现：123 unit tests + 94 e2e tests 全绿；typecheck/build 通过。T1.16 阻塞（需用户写 Key）；T1.17 在 mock 下提前完成。修复 MockChatAdapter 访谈工具 args 含多余 text 字段导致 typed-flow 失败。
+- 2026-09-25 T1.16 冒烟：用户授权从凭证保险柜写入 HP102 `.env.local`；(a)200/2.9s (b)有调用有签名 (c)200 (d)200（预期400，仅记录）(e)JSON可解析；共5次调用。
+- 2026-09-25 T1.43 打字作答评测：mapped 100%（20/20）、none 100%（5/5），25 次真实调用。
