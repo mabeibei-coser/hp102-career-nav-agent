@@ -1,0 +1,9 @@
+{
+  "format": 1,
+  "project_id": "HP102",
+  "case_prefix": "HP102",
+  "document": "docs/maintenance-experience.md",
+  "source_roots": ["app", "components", "lib", "scripts", "tests", "docs"],
+  "daily_owner": "coding-maintenance-daily",
+  "enrolled_at": "2026-09-25T01:00:00+08:00"
+}
