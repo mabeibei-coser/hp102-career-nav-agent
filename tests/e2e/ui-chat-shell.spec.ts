@@ -13,13 +13,24 @@ test.describe("chat shell UI", () => {
   });
 
   test("sends message and shows mock reply", async ({ page }) => {
+    await page.route("**/api/chat", async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      await route.continue();
+    });
     await page.goto("/");
     const input = page.getByPlaceholder("输入消息…");
     await input.fill("你好");
+    const chatResponse = page.waitForResponse(
+      (response) =>
+        response.url().includes("/api/chat") &&
+        response.request().method() === "POST",
+    );
     await input.press("Enter");
-    await expect(page.getByText("正在思考…")).toBeVisible();
-    await expect(page.getByText("这是模拟回复。")).toBeVisible();
+    await expect(page.getByText("你好", { exact: true })).toBeVisible();
     await expect(input).toHaveValue("");
+    await expect(page.getByText("正在思考…")).toBeVisible();
+    expect((await chatResponse).status()).toBe(200);
+    await expect(page.getByText("这是模拟回复。")).toBeVisible();
   });
 
   test("persists messages on refresh and supports new conversation", async ({

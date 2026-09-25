@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 type ComposerProps = {
   value: string;
@@ -24,6 +24,10 @@ export function Composer({ value, onChange, onSend, disabled }: ComposerProps) {
     const maxHeight = LINE_HEIGHT * MAX_ROWS + 16;
     el.style.height = `${Math.min(el.scrollHeight, maxHeight)}px`;
   }, []);
+
+  useEffect(() => {
+    adjustHeight();
+  }, [value, adjustHeight]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {

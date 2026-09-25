@@ -131,6 +131,23 @@ export function ChatApp() {
 
   const handleSend = async (text: string) => {
     if (!data) return;
+    const conversationId = data.conversation.id;
+    const sentAt = Date.now();
+    const optimisticId = `optimistic-${crypto.randomUUID()}`;
+    const optimisticMessage: ChatMessage = {
+      id: optimisticId,
+      seq: (data.messages.at(-1)?.seq ?? 0) + 1,
+      role: "user",
+      content: { kind: "text", text, source: "chat" },
+      createdAt: sentAt,
+    };
+
+    setData((prev) =>
+      prev
+        ? { ...prev, messages: [...prev.messages, optimisticMessage] }
+        : prev,
+    );
+    setComposerText("");
     setThinking(true);
     setError(null);
     try {
@@ -138,7 +155,7 @@ export function ChatApp() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          conversationId: data.conversation.id,
+          conversationId,
           text,
         }),
       });
@@ -146,8 +163,15 @@ export function ChatApp() {
         const body = (await res.json()) as ApiError;
         const msg = body.error?.message ?? "发送失败";
         setError(msg);
-        setComposerText(text);
-        await loadConversation(data.conversation.id);
+        const refreshed = await loadConversation(conversationId);
+        const persisted = refreshed.messages.some(
+          (message) =>
+            message.role === "user" &&
+            message.createdAt >= sentAt &&
+            message.content.kind === "text" &&
+            message.content.text === text,
+        );
+        if (!persisted) setComposerText(text);
         return;
       }
       const json = (await res.json()) as {
@@ -158,14 +182,26 @@ export function ChatApp() {
         prev
           ? {
               ...prev,
-              messages: appendMessages(prev.messages, json.messages),
+              messages: appendMessages(
+                prev.messages.filter((message) => message.id !== optimisticId),
+                json.messages,
+              ),
               state: json.state,
             }
           : prev,
       );
-      setComposerText("");
     } catch (e) {
       setError(e instanceof Error ? e.message : "发送失败");
+      setData((prev) =>
+        prev
+          ? {
+              ...prev,
+              messages: prev.messages.filter(
+                (message) => message.id !== optimisticId,
+              ),
+            }
+          : prev,
+      );
       setComposerText(text);
     } finally {
       setThinking(false);
