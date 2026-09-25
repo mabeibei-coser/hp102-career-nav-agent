@@ -4,6 +4,8 @@ import { COPY } from "@/lib/career/copy";
 test.describe("chat shell UI", () => {
   test("shows opening message and input without a profile card", async ({ page }) => {
     await page.goto("/");
+    await expect(page).toHaveTitle("就业服务智能体");
+    await expect(page.getByRole("heading", { name: "就业服务智能体" })).toBeVisible();
     await expect(page.getByText(COPY.opening)).toBeVisible();
     await expect(page.getByPlaceholder("输入消息…")).toBeVisible();
     await expect(page.getByRole("button", { name: "确认档案" })).toHaveCount(0);
@@ -13,11 +15,39 @@ test.describe("chat shell UI", () => {
   });
 
   test("sends message and shows mock reply", async ({ page }) => {
-    await page.route("**/api/chat", async (route) => {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      await route.continue();
-    });
     await page.goto("/");
+    const conversation = await page.evaluate(async () => {
+      const response = await fetch("/api/conversation");
+      return response.json();
+    });
+    await page.route("**/api/chat", async (route) => {
+      const body = route.request().postDataJSON() as { text: string };
+      const seq = conversation.messages.at(-1)?.seq ?? 0;
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          messages: [
+            {
+              id: "mock-user-message",
+              seq: seq + 1,
+              role: "user",
+              content: { kind: "text", text: body.text, source: "chat" },
+              createdAt: Date.now(),
+            },
+            {
+              id: "mock-assistant-message",
+              seq: seq + 2,
+              role: "assistant",
+              content: { kind: "text", text: "这是模拟回复。" },
+              createdAt: Date.now(),
+            },
+          ],
+          state: conversation.state,
+        }),
+      });
+    });
     const input = page.getByPlaceholder("输入消息…");
     await input.fill("你好");
     const chatResponse = page.waitForResponse(

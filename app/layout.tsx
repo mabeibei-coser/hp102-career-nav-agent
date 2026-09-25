@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "职业导航助手",
+  title: "就业服务智能体",
 };
 
 export default function RootLayout({

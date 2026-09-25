@@ -317,7 +317,7 @@ export function ChatApp() {
   return (
     <div className="flex h-dvh flex-col bg-white text-base text-gray-900">
       <header className="flex shrink-0 items-center justify-between border-b border-gray-200 px-4 py-3">
-        <h1 className="text-lg font-semibold">职业导航助手</h1>
+        <h1 className="text-lg font-semibold">就业服务智能体</h1>
         <button
           type="button"
           onClick={handleNewConversation}
