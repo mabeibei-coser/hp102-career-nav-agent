@@ -117,13 +117,13 @@ function computeFallbackCard(
 ): CardPayload | null {
   if (activeCardMessageId) return null;
   if (
+    stage === "profile" ||
     stage === "report_generating" ||
     stage === "report_ready"
   ) {
     return null;
   }
   if (
-    stage === "profile" ||
     stage === "quiz" ||
     stage === "interview" ||
     stage === "ready_for_report" ||

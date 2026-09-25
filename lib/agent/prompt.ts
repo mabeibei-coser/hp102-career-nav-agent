@@ -1,4 +1,5 @@
 import { getActiveTask } from "@/lib/db/repositories/career-tasks";
+import { listMessages } from "@/lib/db/repositories/messages";
 import { listInterviewAnswers } from "@/lib/db/repositories/interview-answers";
 import { listQuizAnswers } from "@/lib/db/repositories/quiz-answers";
 import { getProfile } from "@/lib/db/repositories/profiles";
@@ -26,8 +27,8 @@ const STAGE_LABELS: Record<Stage, string> = {
 };
 
 const TOOL_DESCRIPTIONS: Record<string, string> = {
-  show_current_step: "重新展示当前步骤的卡片",
-  propose_profile: "把用户说出的档案信息填入档案确认卡",
+  show_current_step: "用户明确要求开始或继续流程时展示当前步骤卡片；普通咨询不调用",
+  propose_profile: "用户明确要求填档案或正在补充已有档案卡时预填；普通自我介绍不调用",
   record_quiz_answer: "记录测评题选项",
   record_interview_answer: "记录访谈回答",
   request_restart: "请求重新开始并展示确认卡",
@@ -110,6 +111,11 @@ export function loadAgentContext(actor: AgentContext & { userId: string }) {
   if (!task) throw new Error("No active task");
   const profile = getProfile(actor.userId);
   const draft = JSON.parse(task.profileDraftJson) as ProfileDraft;
+  const profileCardShown = task.stage === "profile" && listMessages(actor.conversationId).some((message) => {
+    const content = message.content as { kind?: string; card?: { type?: string; taskId?: string } };
+    return message.role === "card" && content.kind === "card" &&
+      content.card?.type === "profile_form" && content.card.taskId === task.id;
+  });
   const quizAnswers = listQuizAnswers(task.id);
   const interviewAnswers = listInterviewAnswers(task.id);
   const interviewQuestions = task.interviewQuestionsJson
@@ -124,6 +130,7 @@ export function loadAgentContext(actor: AgentContext & { userId: string }) {
     task,
     profile,
     draft,
+    profileCardShown,
     quizAnswers,
     interviewAnswers,
     interviewQuestions,
@@ -168,7 +175,11 @@ export function buildSystemPrompt(
     `- 当前阶段：${STAGE_LABELS[stage]}（${stage}）`,
   ];
 
-  if (stage === "quiz") {
+  if (stage === "profile") {
+    lines.push(ctx.profileCardShown
+      ? "- 本任务已展示档案卡：用户可以继续填写，也可以自由咨询；不催促填表。"
+      : "- 本任务尚未展示档案卡：默认自由问答，只有明确要求开始测评、填写档案或生成职业导航报告才展示卡片。");
+  } else if (stage === "quiz") {
     const nextId = quizAnswers.length < 8
       ? ["SJT-01", "SJT-02", "SJT-04", "SJT-05", "SJT-03", "SJT-06", "SJT-07", "SJT-09"].find(
           (id) => !quizAnswers.some((a) => a.questionId === id),

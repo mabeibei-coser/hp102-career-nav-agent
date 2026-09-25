@@ -2,6 +2,7 @@ import { test, expect } from "@playwright/test";
 import {
   confirmProfileViaUi,
   fillProfileForm,
+  startAssessmentViaUi,
   uploadResumeOnProfileCard,
 } from "./ui-helpers";
 
@@ -11,6 +12,7 @@ test.describe("profile form card UI", () => {
   }) => {
     await page.goto("/");
     const confirmBtn = page.getByRole("button", { name: "确认档案" });
+    await startAssessmentViaUi(page);
     await expect(confirmBtn).toBeDisabled();
     await expect(page.getByText(/请填写/)).toBeVisible();
 
@@ -24,12 +26,13 @@ test.describe("profile form card UI", () => {
     page,
   }) => {
     await page.goto("/");
+    await startAssessmentViaUi(page);
     await expect(
       page.getByText("上传前请遮盖身份证号、家庭住址等敏感信息"),
     ).toBeVisible();
 
     await uploadResumeOnProfileCard(page);
-    await expect(page.getByText(".tmp-resume.docx")).toBeVisible();
+    await expect(page.getByText(".tmp-resume.docx", { exact: true })).toBeVisible();
     await expect(page.locator("select").nth(0)).toHaveValue("bachelor");
   });
 

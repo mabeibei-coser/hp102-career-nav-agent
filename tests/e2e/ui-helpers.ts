@@ -1,6 +1,15 @@
 import { expect, type Page } from "@playwright/test";
 import path from "path";
 
+export async function startAssessmentViaUi(page: Page) {
+  const input = page.getByPlaceholder("输入消息…");
+  await expect(input).toBeEnabled();
+  if (await page.getByRole("button", { name: "确认档案" }).isVisible()) return;
+  await input.fill("开始测评");
+  await input.press("Enter");
+  await expect(page.getByRole("button", { name: "确认档案" })).toBeVisible();
+}
+
 export async function fillProfileForm(page: Page) {
   await page.getByLabel("应届毕业生").check();
   await page.locator('input[type="month"]').fill("2003-05");
@@ -9,14 +18,15 @@ export async function fillProfileForm(page: Page) {
 }
 
 export async function confirmProfileViaUi(page: Page) {
+  await startAssessmentViaUi(page);
   await fillProfileForm(page);
   await page.getByRole("button", { name: "确认档案" }).click();
-  await expect(page.getByText("档案已保存")).toBeVisible();
+  await expect(page.getByText("档案已保存").last()).toBeVisible();
 }
 
 export async function answerAllQuizViaUi(page: Page) {
   for (let i = 1; i <= 8; i++) {
-    await expect(page.getByText(`第 ${i}/8 题`)).toBeVisible();
+    await expect(page.getByText(`第 ${i}/8 题`).last()).toBeVisible();
     await page.getByRole("button", { name: /^A\./, disabled: false }).click();
   }
 }
@@ -24,20 +34,27 @@ export async function answerAllQuizViaUi(page: Page) {
 export async function answerAllInterviewViaUi(page: Page) {
   const answer = "我喜欢和人打交道，也愿意学习新技能。";
   for (let i = 1; i <= 4; i++) {
-    await expect(page.getByText(`访谈 第 ${i}/4 题`)).toBeVisible({
+    await expect(page.getByText(`访谈 第 ${i}/4 题`).last()).toBeVisible({
       timeout: 20_000,
     });
-    await page.getByPlaceholder("说说你的真实想法…").fill(answer);
-    await page.getByRole("button", { name: "提交回答" }).click();
+    await page.locator('textarea[placeholder="说说你的真实想法…"]:enabled').fill(answer);
+    await page.getByRole("button", { name: "提交回答", disabled: false }).click();
   }
 }
 
 export async function uploadResumeOnProfileCard(page: Page) {
+  await startAssessmentViaUi(page);
   const resumePath = path.resolve(
     __dirname,
     "../fixtures/.tmp-resume.docx",
   );
+  const uploadResponse = page.waitForResponse(
+    (response) =>
+      response.url().includes("/api/resume") &&
+      response.request().method() === "POST",
+  );
   await page.locator('input[type="file"]').setInputFiles(resumePath);
+  expect((await uploadResponse).status()).toBe(200);
 }
 
 export async function loginViaUi(

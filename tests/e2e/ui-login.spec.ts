@@ -41,8 +41,10 @@ test.describe("login before report", () => {
     await confirmProfileViaUi(page);
     await answerAllQuizViaUi(page);
     await answerAllInterviewViaUi(page);
-    await page.getByRole("button", { name: "生成我的职业导航报告" }).click();
-    await expect(page.getByText("手机号验证")).toHaveCount(0);
-    await expect(page.getByText("报告摘要")).toBeVisible({ timeout: 30_000 });
+    await page.getByRole("button", { name: "生成我的职业导航报告", disabled: false }).click();
+    await expect(page.getByRole("heading", { name: "报告摘要", exact: true })).toHaveCount(2, { timeout: 30_000 });
+    // The original verified login card stays in history; no new login form appears.
+    await expect(page.getByText("手机号验证")).toHaveCount(1);
+    await expect(page.getByPlaceholder("请输入手机号")).toHaveCount(0);
   });
 });

@@ -24,6 +24,7 @@ describe("http", () => {
 
     const llm = toErrorResponse(new DomainError("LLM_UNAVAILABLE"));
     expect(llm.status).toBe(503);
+    expect(llm.body.error.message).toBe("服务繁忙，请稍后再试。");
   });
 
   it("uses custom message for DomainError and hides unknown errors", () => {

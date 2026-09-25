@@ -13,6 +13,7 @@ import {
   answerQuiz,
   confirmProfile,
   ensureActiveTask,
+  showCurrentStep,
   requestReport,
 } from "@/lib/career/service";
 import { createUser } from "@/lib/db/repositories/users";
@@ -37,16 +38,17 @@ afterEach(() => {
 });
 
 describe("conversation view", () => {
-  it("creates conversation with opening and profile card", () => {
+  it("creates and reloads conversation with opening only", () => {
     const userId = createUser();
     const { messages, state } = createConversation(userId);
     expect(messages[0].content).toMatchObject({ text: COPY.opening });
-    expect(messages[1].content).toMatchObject({
-      card: { type: "profile_form" },
-    });
+    expect(messages).toHaveLength(1);
     expect(state.stage).toBe("profile");
-    expect(state.activeCardMessageId).toBe(messages[1].id);
+    expect(state.activeCardMessageId).toBeNull();
     expect(state.fallbackCard).toBeNull();
+    const reloaded = getConversationView(userId, state.conversationId);
+    expect(reloaded.messages).toEqual(messages);
+    expect(reloaded.state.fallbackCard).toBeNull();
   });
 
   it("tracks quiz progress and active card", async () => {
@@ -96,6 +98,26 @@ describe("conversation view", () => {
         active.content.card.type === "quiz_question" &&
         active.content.card.questionId === "SJT-05",
     ).toBe(true);
+  });
+
+  it("retains old profile cards and prefills a returning user's new card only on request", () => {
+    const userId = createUser();
+    const { conversation } = createConversation(userId);
+    const actor = { userId, conversationId: conversation.id };
+    const step = showCurrentStep(actor);
+    const [oldCard] = insertMessages(conversation.id, [
+      { role: "card", content: { kind: "card", card: step.cards[0] } },
+    ]);
+    expect(getConversationView(userId, conversation.id).state.activeCardMessageId).toBe(oldCard.id);
+    confirmProfile(actor, {
+      identity: "recent_grad", birthDate: "2003-05", education: "bachelor", workYears: "lt1", targetPosition: "",
+    });
+    const fresh = createConversation(userId);
+    expect(fresh.messages).toHaveLength(1);
+    expect(fresh.state.activeCardMessageId).toBeNull();
+    expect(fresh.state.fallbackCard).toBeNull();
+    const requested = showCurrentStep({ userId, conversationId: fresh.conversation.id });
+    expect(requested.cards[0]).toMatchObject({ type: "profile_form", draft: { education: "bachelor", identity: "recent_grad" } });
   });
 
   it("computes fallback card, poll interval, and access control", () => {

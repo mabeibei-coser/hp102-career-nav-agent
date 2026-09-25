@@ -28,7 +28,7 @@ const DEFAULT_MESSAGES: Record<ErrorCode, string> = {
   RESUME_UNREADABLE: "没能读取这份简历，可以换一个文件，或直接填写档案继续",
   RATE_LIMITED: "发送太频繁了，请稍后再试",
   INTERNAL: "服务出了点问题，请稍后再试",
-  LLM_UNAVAILABLE: "服务繁忙，请稍后再试。你也可以直接点击卡片继续。",
+  LLM_UNAVAILABLE: "服务繁忙，请稍后再试。",
   VOICE_UNAVAILABLE: "语音服务暂时不可用",
   SMS_FAILED: "短信发送失败，请稍后再试",
 };

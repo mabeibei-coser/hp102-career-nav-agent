@@ -13,7 +13,9 @@ test.describe("conversation API", () => {
 
     const body = await res.json();
     expect(body.messages[0].content.text).toBe(COPY.opening);
-    expect(body.messages[1].content.card.type).toBe("profile_form");
+    expect(body.messages).toHaveLength(1);
+    expect(body.state.activeCardMessageId).toBeNull();
+    expect(body.state.fallbackCard).toBeNull();
     expect(body.state.stage).toBe("profile");
   });
 
@@ -34,6 +36,8 @@ test.describe("conversation API", () => {
     expect(newRes.status()).toBe(200);
     const newBody = await newRes.json();
     expect(newBody.conversation.id).not.toBe(firstId);
+    expect(newBody.messages).toHaveLength(1);
+    expect(newBody.state.fallbackCard).toBeNull();
   });
 
   test("foreign conversationId returns NOT_FOUND", async ({ browser }) => {

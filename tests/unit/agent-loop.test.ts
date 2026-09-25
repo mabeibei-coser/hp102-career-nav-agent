@@ -120,6 +120,35 @@ async function setupQuizActor() {
 }
 
 describe("agent loop", () => {
+  it("keeps ordinary chat card-free across turns and reloads", async () => {
+    const userId = createUser();
+    const { conversation } = createConversation(userId);
+    const actor = { userId, conversationId: conversation.id };
+    for (const text of ["你好", "我是本科毕业，有三年经验，想换工作", "测评是什么", "继续"]) {
+      const result = await runChatTurn({ ...actor, text });
+      expect(result.messages.some((m) => m.role === "card")).toBe(false);
+      expect(result.state.activeCardMessageId).toBeNull();
+      expect(result.state.fallbackCard).toBeNull();
+    }
+    const view = getConversationView(userId, conversation.id);
+    expect(view.messages.filter((m) => m.role === "user")).toHaveLength(4);
+    expect(view.state.fallbackCard).toBeNull();
+  });
+
+  it.each(["开始测评", "填写档案", "生成职业导航报告"])("opens and restores profile card for %s", async (text) => {
+    const userId = createUser();
+    const { conversation } = createConversation(userId);
+    const actor = { userId, conversationId: conversation.id };
+    const result = await runChatTurn({ ...actor, text });
+    const card = result.messages.find((m) => m.content.kind === "card");
+    expect(card?.content).toMatchObject({ card: { type: "profile_form" } });
+    expect(result.state.stage).toBe("profile");
+    const view = getConversationView(userId, conversation.id);
+    expect(view.state.activeCardMessageId).toBe(card?.id);
+    const followup = await runChatTurn({ ...actor, text: "继续" });
+    expect(followup.messages.some((m) => m.role === "card")).toBe(true);
+  });
+
   it("executes tool then assistant reply with persisted messages", async () => {
     const actor = await setupQuizActor();
     const before = listMessages(actor.conversationId).length;

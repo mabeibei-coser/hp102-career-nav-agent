@@ -61,7 +61,7 @@ describe("actions", () => {
       text: expect.stringContaining("（确认档案）"),
     });
     expect(result.messages[1].content).toMatchObject({ text: COPY.profileConfirmed });
-    expect(listMessages(conversation.id)).toHaveLength(5);
+    expect(listMessages(conversation.id)).toHaveLength(4);
   });
 
   it("rejects invalid stage actions and defaults interview input method", async () => {

@@ -178,7 +178,9 @@ export class MockChatAdapter implements ChatAdapter {
         };
       }
 
-      if (u === "继续" && findTool(opts.tools, "show_current_step")) {
+      const explicitStart = ["开始测评", "填写档案", "生成职业导航报告"].includes(u);
+      const continuing = u === "继续" && !opts.system.includes("本任务尚未展示档案卡");
+      if ((explicitStart || continuing) && findTool(opts.tools, "show_current_step")) {
         return {
           text: "",
           toolCalls: [{ name: "show_current_step", args: {} }],

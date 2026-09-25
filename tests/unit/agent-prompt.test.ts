@@ -18,6 +18,8 @@ import { attachResume } from "@/lib/career/service";
 import { makeResumeDocx } from "../fixtures/make-resume-docx";
 import { insertReport } from "@/lib/db/repositories/reports";
 import { updateTask } from "@/lib/db/repositories/career-tasks";
+import { insertMessages } from "@/lib/db/repositories/messages";
+import { showCurrentStep } from "@/lib/career/service";
 import reportMock from "../fixtures/report-mock.json";
 import { randomUUID } from "crypto";
 
@@ -37,6 +39,22 @@ afterEach(() => {
 });
 
 describe("agent prompt", () => {
+  it("distinguishes the chat opening from an existing card even beyond the history window", () => {
+    const userId = createUser();
+    const { conversation } = createConversation(userId);
+    const actor = { userId, conversationId: conversation.id };
+    expect(buildSystemPrompt(actor, loadAgentContext(actor))).toContain("本任务尚未展示档案卡");
+    const step = showCurrentStep(actor);
+    insertMessages(conversation.id, [{ role: "card", content: { kind: "card", card: step.cards[0] } }]);
+    insertMessages(conversation.id, Array.from({ length: 42 }, () => ({
+      role: "user" as const, content: { kind: "text", text: "咨询面试技巧" },
+    })));
+    expect(buildSystemPrompt(actor, loadAgentContext(actor))).toContain("本任务已展示档案卡");
+    const fresh = createConversation(userId);
+    const freshActor = { userId, conversationId: fresh.conversation.id };
+    expect(loadAgentContext(freshActor).profileCardShown).toBe(false);
+  });
+
   it("loadSkillBody strips frontmatter and includes key sections", () => {
     const body = loadSkillBody();
     expect(body.startsWith("---")).toBe(false);
