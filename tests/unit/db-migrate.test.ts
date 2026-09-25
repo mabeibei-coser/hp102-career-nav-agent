@@ -48,6 +48,7 @@ describe("db migrate", () => {
       "reports",
       "resume_files",
       "schema_migrations",
+      "sms_codes",
       "users",
     ]);
 
@@ -68,7 +69,7 @@ describe("db migrate", () => {
     const migrations = db
       .prepare("SELECT version FROM schema_migrations ORDER BY version")
       .all();
-    expect(migrations).toEqual([{ version: 1 }]);
+    expect(migrations).toEqual([{ version: 1 }, { version: 2 }]);
   });
 
   it("enables WAL and foreign keys and rolls back failed transactions", () => {

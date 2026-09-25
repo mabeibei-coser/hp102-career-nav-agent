@@ -94,6 +94,7 @@ function computeActiveCardMessageId(
         }
         break;
       case "ready_for_report":
+        if (card.type === "login_required") return msg.id;
         if (card.type === "report_cta") return msg.id;
         break;
       case "report_failed":

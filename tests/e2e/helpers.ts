@@ -114,3 +114,18 @@ export async function waitForStage(
   }
   throw new Error(`Timed out waiting for stage ${stage}`);
 }
+
+export async function loginViaApi(
+  request: APIRequestContext,
+  phone = `139${String(Date.now()).slice(-8)}`,
+  code = "123456",
+) {
+  const send = await request.post("/api/auth/send-code", {
+    data: { phone },
+  });
+  expect(send.status()).toBe(200);
+  const verify = await request.post("/api/auth/verify", {
+    data: { phone, code },
+  });
+  expect(verify.status()).toBe(200);
+}

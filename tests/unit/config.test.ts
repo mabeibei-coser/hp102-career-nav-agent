@@ -10,6 +10,7 @@ const EXPECTED_DEPS = [
   "mammoth",
   "next",
   "pdf-parse",
+  "puppeteer",
   "react",
   "react-dom",
   "tailwind-merge",

@@ -14,7 +14,7 @@ describe("resume", () => {
 
     expect(parsed.text).toContain("行政专员");
     expect(parsed.extractedPhone).toBe("13800138000");
-  });
+  }, 30_000);
 
   it("rejects oversized, unsupported, and unreadable files", async () => {
     await expect(

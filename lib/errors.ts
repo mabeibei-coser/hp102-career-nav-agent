@@ -11,7 +11,9 @@ export type ErrorCode =
   | "RESUME_UNREADABLE"
   | "RATE_LIMITED"
   | "INTERNAL"
-  | "LLM_UNAVAILABLE";
+  | "LLM_UNAVAILABLE"
+  | "VOICE_UNAVAILABLE"
+  | "SMS_FAILED";
 
 const DEFAULT_MESSAGES: Record<ErrorCode, string> = {
   INVALID_INPUT: "输入内容不符合要求",
@@ -27,6 +29,8 @@ const DEFAULT_MESSAGES: Record<ErrorCode, string> = {
   RATE_LIMITED: "发送太频繁了，请稍后再试",
   INTERNAL: "服务出了点问题，请稍后再试",
   LLM_UNAVAILABLE: "服务繁忙，请稍后再试。你也可以直接点击卡片继续。",
+  VOICE_UNAVAILABLE: "语音服务暂时不可用",
+  SMS_FAILED: "短信发送失败，请稍后再试",
 };
 
 const DEFAULT_STATUS: Record<ErrorCode, number> = {
@@ -43,6 +47,8 @@ const DEFAULT_STATUS: Record<ErrorCode, number> = {
   RATE_LIMITED: 429,
   INTERNAL: 500,
   LLM_UNAVAILABLE: 503,
+  VOICE_UNAVAILABLE: 503,
+  SMS_FAILED: 502,
 };
 
 export class DomainError extends Error {

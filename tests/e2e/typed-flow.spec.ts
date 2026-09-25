@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { generateReportViaUi } from "./ui-helpers";
 
 test.describe("full typed flow", () => {
   test("completes flow via chat text and confirm button", async ({ page }) => {
@@ -41,7 +42,7 @@ test.describe("full typed flow", () => {
     await expect(
       page.getByRole("button", { name: "生成我的职业导航报告" }),
     ).toBeVisible({ timeout: 30_000 });
-    await page.getByRole("button", { name: "生成我的职业导航报告" }).click();
+    await generateReportViaUi(page);
     await expect(page.getByTestId("bipolar-bar")).toHaveCount(4, {
       timeout: 20_000,
     });

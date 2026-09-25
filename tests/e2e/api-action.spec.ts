@@ -4,6 +4,7 @@ import {
   answerAllInterviewViaApi,
   answerAllQuizViaApi,
   confirmProfileViaApi,
+  loginViaApi,
   startConversation,
   waitForStage,
 } from "./helpers";
@@ -51,6 +52,8 @@ test.describe("action API", () => {
     const lastInterview =
       interviewBody.messages[interviewBody.messages.length - 1];
     expect(lastInterview.content.card.type).toBe("report_cta");
+
+    await loginViaApi(request);
 
     const genRes = await request.post("/api/action", {
       data: {

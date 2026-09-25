@@ -21,6 +21,7 @@ import {
 import { getResumeFile, insertResumeFile } from "@/lib/db/repositories/resume-files";
 import {
   interviewQuestionCard,
+  loginRequiredCard,
   nextUnansweredInterviewId,
   profileFormCard,
   quizQuestionCard,
@@ -30,6 +31,7 @@ import {
   type CardPayload,
 } from "./cards";
 import { COPY } from "./copy";
+import { getUser } from "@/lib/db/repositories/users";
 import { generateInterviewQuestions, validateAnswerText } from "./interview";
 import {
   profileDraftSchema,
@@ -534,8 +536,16 @@ export function requestReport(
   actor: Actor,
   meta: { ip?: string; userAgent?: string },
 ): StepResult {
-  const jobId = createReportJob(actor, meta);
+  const user = getUser(actor.userId);
   const task = requireActiveTask(actor);
+  if (!user?.phone) {
+    return {
+      notices: ["生成报告前请先登录，方便你以后找回报告。"],
+      cards: [loginRequiredCard(task.id)],
+      forModel: "用户尚未登录，已展示登录卡。",
+    };
+  }
+  const jobId = createReportJob(actor, meta);
   return {
     notices: [COPY.reportStarted],
     cards: [reportStatusCard(task.id, jobId, "generating")],

@@ -10,6 +10,7 @@ import { InterviewQuestionCardView } from "@/components/cards/interview-question
 import { ReportCtaCardView } from "@/components/cards/report-cta-card";
 import { ReportStatusCardView } from "@/components/cards/report-status-card";
 import { ReportSummaryCardView } from "@/components/cards/report-summary-card";
+import { LoginCardView } from "@/components/cards/login-card";
 import { RestartConfirmCardView } from "@/components/cards/restart-confirm-card";
 
 export type ChatAction =
@@ -25,6 +26,7 @@ export type ChatAction =
       taskId: string;
       questionId: string;
       text: string;
+      inputMethod?: "card" | "voice";
     }
   | { type: "generate_report"; taskId: string }
   | { type: "confirm_restart"; taskId: string }
@@ -172,12 +174,13 @@ function CardRenderer({
           disabled={disabled}
           loadingAction={loadingAction}
           answeredText={answers?.interview[card.questionId]}
-          onSubmit={(text) =>
+          onSubmit={(text, inputMethod) =>
             onAction({
               type: "answer_interview",
               taskId: card.taskId,
               questionId: card.questionId,
               text,
+              inputMethod: inputMethod ?? "card",
             })
           }
         />
@@ -220,6 +223,17 @@ function CardRenderer({
           }
           onCancel={() =>
             onAction({ type: "cancel_restart", taskId: card.taskId })
+          }
+        />
+      );
+    case "login_required":
+      return (
+        <LoginCardView
+          card={card}
+          active={active}
+          disabled={disabled}
+          onLoggedIn={() =>
+            onAction({ type: "generate_report", taskId: card.taskId })
           }
         />
       );

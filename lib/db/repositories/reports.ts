@@ -166,19 +166,27 @@ export function insertReport(input: InsertReportInput): number {
 export function getReportByUuid(
   userId: string,
   uuid: string,
+  skipUserCheck?: boolean,
 ): Report | null {
   const db = getDb();
-  const row = db
-    .prepare(
-      `SELECT id, created_at, uuid, user_id, user_phone, conversation_id, career_task_id,
+  const sql = skipUserCheck
+    ? `SELECT id, created_at, uuid, user_id, user_phone, conversation_id, career_task_id,
               user_identity, target_position, target_education, has_resume, resume_filename,
               resume_storage_path, sections_status, ip, user_agent, duration_ms,
               form_data_json, quiz_answers_json, scoring_json, interview_q1q2_json,
               interview_q3q4_json, interview_questions_json, report_json, model_provider,
               model_name, status
-       FROM reports WHERE uuid = ? AND user_id = ?`,
-    )
-    .get(uuid, userId) as
+       FROM reports WHERE uuid = ?`
+    : `SELECT id, created_at, uuid, user_id, user_phone, conversation_id, career_task_id,
+              user_identity, target_position, target_education, has_resume, resume_filename,
+              resume_storage_path, sections_status, ip, user_agent, duration_ms,
+              form_data_json, quiz_answers_json, scoring_json, interview_q1q2_json,
+              interview_q3q4_json, interview_questions_json, report_json, model_provider,
+              model_name, status
+       FROM reports WHERE uuid = ? AND user_id = ?`;
+  const row = (skipUserCheck
+    ? db.prepare(sql).get(uuid)
+    : db.prepare(sql).get(uuid, userId)) as
     | {
         id: number;
         created_at: number;

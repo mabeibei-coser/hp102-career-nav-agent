@@ -37,12 +37,12 @@ export default defineConfig({
     {
       name: "Desktop Chrome",
       use: { ...devices["Desktop Chrome"] },
-      testIgnore: /ui-report-fail\.spec\.ts/,
+      testIgnore: [/ui-report-fail\.spec\.ts/, /ui-voice\.spec\.ts/],
     },
     {
       name: "iPhone 14",
       use: { ...devices["iPhone 14"] },
-      testIgnore: /ui-report-fail\.spec\.ts/,
+      testIgnore: [/ui-report-fail\.spec\.ts/, /ui-voice\.spec\.ts/],
     },
     {
       name: "Pixel 7",

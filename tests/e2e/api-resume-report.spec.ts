@@ -5,6 +5,7 @@ import {
   answerAllInterviewViaApi,
   answerAllQuizViaApi,
   confirmProfileViaApi,
+  loginViaApi,
   startConversation,
   waitForStage,
 } from "./helpers";
@@ -84,6 +85,7 @@ test.describe("resume and report API", () => {
     await confirmProfileViaApi(request, conversationId, taskId);
     await answerAllQuizViaApi(request, conversationId, taskId);
     await answerAllInterviewViaApi(request, conversationId, taskId);
+    await loginViaApi(request);
 
     await request.post("/api/action", {
       data: {

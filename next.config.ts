@@ -6,7 +6,13 @@ const nextConfig: NextConfig = {
   distDir: process.env.NEXT_DIST_DIR || ".next",
   basePath: BASE_PATH,
   assetPrefix: BASE_PATH,
-  serverExternalPackages: ["better-sqlite3", "pdf-parse", "mammoth"],
+  serverExternalPackages: [
+    "better-sqlite3",
+    "pdf-parse",
+    "mammoth",
+    "puppeteer",
+    "puppeteer-core",
+  ],
 };
 
 export default nextConfig;

@@ -2,7 +2,9 @@
   "name": "hp102-career-nav-agent",
   "version": "0.1.0",
   "private": true,
-  "engines": { "node": ">=20.9.0" },
+  "engines": {
+    "node": ">=20.9.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -25,6 +27,7 @@
     "mammoth": "^1.12.0",
     "next": "16.3.6",
     "pdf-parse": "^2.4.5",
+    "puppeteer": "^24.43.1",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "tailwind-merge": "^3.5.0",

@@ -11,6 +11,13 @@ const EXPECTED_VARS = [
   "BANANAROUTER_BASE_URL",
   "BANANAROUTER_MODEL",
   "E2E_MOCK_MODE",
+  "VOLC_TTS_APP_KEY",
+  "VOLC_TTS_ACCESS_KEY",
+  "VOLC_TTS_SPEAKER",
+  "VOLC_ASR_RESOURCE_ID",
+  "SMSBAO_USER",
+  "SMSBAO_PASS",
+  "SMSBAO_SIGN",
 ];
 
 function parseEnvExample(content: string): Map<string, string> {

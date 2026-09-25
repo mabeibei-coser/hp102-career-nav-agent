@@ -4,6 +4,7 @@ import path from "path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { resetDbForTests } from "@/lib/db/client";
 import { createUser } from "@/lib/db/repositories/users";
+import { getDb } from "@/lib/db/client";
 import { createConversation } from "@/lib/db/repositories/conversations";
 import { listMessages } from "@/lib/db/repositories/messages";
 import { insertJob, listJobsByStatus } from "@/lib/db/repositories/report-jobs";
@@ -44,6 +45,10 @@ afterEach(() => {
 });
 
 async function advanceToReadyForReport(userId: string, conversationId: string) {
+  const phone = `138${userId.replace(/\D/g, "").slice(0, 8).padEnd(8, "0")}`;
+  getDb()
+    .prepare("UPDATE users SET phone = ? WHERE id = ?")
+    .run(phone.slice(0, 11), userId);
   const actor = { userId, conversationId };
   ensureActiveTask(actor);
   const buf = await makeResumeDocx();

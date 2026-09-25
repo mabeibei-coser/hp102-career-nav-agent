@@ -3,6 +3,7 @@ import {
   answerAllInterviewViaUi,
   answerAllQuizViaUi,
   confirmProfileViaUi,
+  loginViaUi,
 } from "./ui-helpers";
 
 test.describe("report failure UI", () => {
@@ -13,6 +14,7 @@ test.describe("report failure UI", () => {
     await answerAllInterviewViaUi(page);
 
     await page.getByRole("button", { name: "生成我的职业导航报告" }).click();
+    await loginViaUi(page);
     await expect(page.getByText("报告生成中")).toBeVisible();
 
     await expect(page.getByText("生成服务暂时不可用")).toBeVisible({

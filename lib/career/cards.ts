@@ -68,7 +68,8 @@ export type CardPayload =
       secondary: { position: string };
       topThree: string[];
     }
-  | { type: "restart_confirm"; taskId: string };
+  | { type: "restart_confirm"; taskId: string }
+  | { type: "login_required"; taskId: string };
 
 export function profileFormCard(
   taskId: string,
@@ -181,6 +182,10 @@ export function reportSummaryCard(
 
 export function restartConfirmCard(taskId: string): CardPayload {
   return { type: "restart_confirm", taskId };
+}
+
+export function loginRequiredCard(taskId: string): CardPayload {
+  return { type: "login_required", taskId };
 }
 
 export { nextUnansweredQuestionId };
